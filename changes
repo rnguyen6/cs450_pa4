@@ -1,0 +1,3 @@
+fnctl.h		- O_EXTENT flag
+stat.h		- T_EXTENT def
+sysfile.c	- sys_open if conditions t/o_extent 300-304
