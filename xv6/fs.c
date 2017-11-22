@@ -376,13 +376,28 @@ bmap(struct inode *ip, uint bn)
   uint addr, *a;
   struct buf *bp;
 
-  /*check if extent first*/
+  /*extent type*/
   if(ip->type == T_EXTENT){
-    for(int i = 0; i < NDIRECT; i++){
-      if(ip->addrs[n] == 0){
-
+    /*check exists*/
+    int i = 0;
+    while(ip->addrs[i]){
+      if(ip->addrs[i+1] < bn && bn < (ip->addrs[i] & 0xFF) + ip->addrs[i+1]){ //offset < bn < offset + size
+        return ((ip->addrs[i] & 0xFF) >> 8) + bn - ip->addrs[i+1]; //pointer + bn - offset
+      }
+      i++;
+    }
+    /*if extent doesnt exist*/
+    addr = balloc(ip->dev);
+    if(i > 0){
+      if(addr == ((ip->addrs[i-1] & 0xFF) >> 8) + (ip->addrs[i-1] & 0xFF)){ //if can add to extent
+        ip->addrs[i-1] = (((((ip->addrs[i-1]) & 0xFF) >> 8) << 8) | (((ip->addrs[i-1]) & 0xFF) + 1));
+        return addr;
       }
     }
+    /*create block*/
+    ip->addrs[i] = (((((addr) & 0xFF) >> 8) << 8) | 1);
+    ip->addrs[i+1] = bn;
+    return addr;
   }
   /*otherwise proceed as normal*/
   else{
