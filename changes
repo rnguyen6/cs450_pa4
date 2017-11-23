@@ -8,6 +8,7 @@ fs.c		- extent create block 370s
 
 printing fstat info
 ls.c		- added case t_extent 47
-stat.h		- addrs to access from stats
 test.c		- executing test files of extent
-
+stat.h		- addrs to access from stats
+fs.c		- addrs copied 474
+test.c		- can create extent files now (test c file)
