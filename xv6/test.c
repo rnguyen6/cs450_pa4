@@ -14,7 +14,7 @@ main(int argc, char *argv[])
     write(fd, numStr, sizeof(numStr));
     close(fd);
   }
-  else{
+  else if(strcmp(argv[1], "r") == 0){ //read file
     int fd = open(argv[2], O_RDONLY | O_EXTENT);
     struct stat stats;
     /*to be moved to filestat in file.c*/
@@ -27,6 +27,15 @@ main(int argc, char *argv[])
         i++;
       }
     }
+  }
+  else if(strcmp(argv[1], "l") == 0){
+    int fd = open(argv[2], O_CREATE | O_EXTENT);
+    char str1[] = "first";
+    write(fd, str1, sizeof(str1));
+    lseek(fd, 200);
+    char str2[] = "second";
+    write(fd, str2, sizeof(str2));
+    close(fd);
   }
   exit();
 }

@@ -12,3 +12,10 @@ test.c		- executing test files of extent
 stat.h		- addrs to access from stats
 fs.c		- addrs copied 474
 test.c		- can create extent files now (test c file)
+
+attempting lseek
+syscall.h	- syscall number
+usys.S		- new syscall
+user.h		- syscall def
+syscall.c	- adding to list
+

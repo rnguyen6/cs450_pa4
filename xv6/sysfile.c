@@ -449,3 +449,23 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+int
+sys_lseek(void)
+{
+  struct file *fd;
+  int offset;
+  if(argfd(0, 0, &fd) < 0 || argint(1, &offset) < 0){ //no args
+    return -1;
+  }
+  if(fd->type == FD_INODE){
+    ilock(fd->ip); //freeze to modify
+    fd->off = offset;
+    if(offset > fd->ip->size){
+      fd->ip->size = offset; //extend offset
+    }
+    iunlock(fd->ip);
+    return fd->off;
+  }
+  return -1;
+}
