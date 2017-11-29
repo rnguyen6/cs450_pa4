@@ -373,7 +373,7 @@ iunlockput(struct inode *ip)
 static uint
 bmap(struct inode *ip, uint bn)
 {
-  uint addr, *a;
+  uint addr, *a, pointer, length;
   struct buf *bp;
 
   /*extent type*/
@@ -381,21 +381,24 @@ bmap(struct inode *ip, uint bn)
     /*check exists*/
     int i = 0;
     while(ip->addrs[i]){
-      if(ip->addrs[i+1] < bn && bn < (ip->addrs[i] & 0xFF) + ip->addrs[i+1]){ //offset < bn < offset + size
-        return ((ip->addrs[i] & 0xFF) >> 8) + bn - ip->addrs[i+1]; //pointer + bn - offset
+      length = ip->addrs[i] & 0xFF;
+      if(ip->addrs[i+1] <= bn && bn < ip->addrs[i+1] + length){ //offset < bn < offset + size
+        return (length >> 8) + bn - ip->addrs[i+1]; //pointer + bn - offset
       }
       i++;
     }
     /*if extent doesnt exist*/
     addr = balloc(ip->dev);
-    if(i > 0){
-      if(addr == ((ip->addrs[i-1] & 0xFF) >> 8) + (ip->addrs[i-1] & 0xFF)){ //if can add to extent
-        ip->addrs[i-1] = (((((ip->addrs[i-1]) & 0xFF) >> 8) << 8) | (((ip->addrs[i-1]) & 0xFF) + 1));
+    if(i > 0){ //check if file needs blocks
+      length = ip->addrs[i-1] & 0xFF;
+      pointer = length >> 8;
+      if(addr == pointer + length){ //if can add to extent
+        ip->addrs[i-1] = (pointer << 8 | (length + 1));
         return addr;
       }
     }
     /*create block*/
-    ip->addrs[i] = (((((addr) & 0xFF) >> 8) << 8) | 1);
+    ip->addrs[i] = (addr << 8 | 1);
     ip->addrs[i+1] = bn;
     return addr;
   }
@@ -436,24 +439,35 @@ itrunc(struct inode *ip)
   int i, j;
   struct buf *bp;
   uint *a;
-
-  for(i = 0; i < NDIRECT; i++){
-    if(ip->addrs[i]){
-      bfree(ip->dev, ip->addrs[i]);
-      ip->addrs[i] = 0;
+  if(ip->type == T_EXTENT){
+    for(i = 0; i < NDIRECT; i++){
+      if(ip->addrs[i]){
+        uint length = ip->addrs[i] & 0xFF;
+        for(j = 0; j < length; j++){
+          bfree(ip->dev, (length >> 8) + j*BSIZE);
+        }
+      }
     }
   }
-
-  if(ip->addrs[NDIRECT]){
-    bp = bread(ip->dev, ip->addrs[NDIRECT]);
-    a = (uint*)bp->data;
-    for(j = 0; j < NINDIRECT; j++){
-      if(a[j])
-        bfree(ip->dev, a[j]);
+  else{ //proceed normal
+    for(i = 0; i < NDIRECT; i++){
+      if(ip->addrs[i]){
+        bfree(ip->dev, ip->addrs[i]);
+        ip->addrs[i] = 0;
+      }
     }
-    brelse(bp);
-    bfree(ip->dev, ip->addrs[NDIRECT]);
-    ip->addrs[NDIRECT] = 0;
+
+    if(ip->addrs[NDIRECT]){
+      bp = bread(ip->dev, ip->addrs[NDIRECT]);
+      a = (uint*)bp->data;
+      for(j = 0; j < NINDIRECT; j++){
+        if(a[j])
+          bfree(ip->dev, a[j]);
+      }
+      brelse(bp);
+      bfree(ip->dev, ip->addrs[NDIRECT]);
+      ip->addrs[NDIRECT] = 0;
+    }
   }
 
   ip->size = 0;

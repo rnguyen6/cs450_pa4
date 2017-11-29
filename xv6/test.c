@@ -15,24 +15,28 @@ main(int argc, char *argv[])
     close(fd);
   }
   else if(strcmp(argv[1], "r") == 0){ //read file
-    int fd = open(argv[2], O_RDONLY);
+    int fd = open(argv[2], O_RDONLY | O_EXTENT);
     struct stat stats;
     /*to be moved to filestat in file.c*/
     fstat(fd, &stats);
     printf(1, "name: %s | type: %d | device: %d | inode: %d | links: %d | size: %d\n", argv[2], (&stats)->type, (&stats)->dev, (&stats)->ino, (&stats)->nlink, (&stats)->size);
     if((&stats)->type == T_EXTENT){
       int i = 0;
+      uint length, pointer;
       while((&stats)->addrs[i]){
-        printf(1, "addr: %x | size: %d\n", ((((&stats)->addrs[i]) & 0xFF) >> 8), (((&stats)->addrs[i]) & 0xFF));
+        length = (&stats)->addrs[i] & 0xFF;
+        pointer = length >> 8;
+        printf(1, "addr: %x | size: %d\n", pointer, length);
         i++;
       }
     }
+    close(fd);
   }
   else if(strcmp(argv[1], "l") == 0){
     int fd = open(argv[2], O_CREATE | O_EXTENT);
     char str1[] = "first";
     write(fd, str1, sizeof(str1));
-    lseek(fd, 200);
+    lseek(fd, 365);
     char str2[] = "second";
     write(fd, str2, sizeof(str2));
     close(fd);
