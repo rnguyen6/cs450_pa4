@@ -1,0 +1,19 @@
+Design was to fill directly accessed blocks with pointers to data blocks (pointer, length). This removes the need for indirect block pointers.
+It would create sufficiently large files sizes, but causes internal fragmentation if small extent files are made. It made for simpler code.
+
+Changes are as follows:
+  For extent:
+    fnctl.h   - defines o type
+    stat.h    - defines t type
+    sysfile.c - sys_open: conditions with extent
+    fs.c      - bmap: core implemntation
+              - itrunc: frees the bmap allocations
+  For fstat:
+    ls.c      - extent case, making sure extent file first before moving on
+    test.c    - executing test cases
+    stat.h    - addrs to access from stats
+ For lseek:
+    syscall.h	- syscall number
+    usys.S		- new syscall
+    user.h		- syscall def
+    syscall.c	- adding to list   
