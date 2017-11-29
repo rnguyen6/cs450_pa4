@@ -7,7 +7,7 @@ Changes are as follows:
     stat.h    - defines t type
     sysfile.c - sys_open: conditions with extent
     fs.c      - bmap: core implemntation
-              - itrunc: frees the bmap allocations
+              - stati: copies addrs for printing
   For fstat:
     ls.c      - extent case, making sure extent file first before moving on
     test.c    - executing test cases
