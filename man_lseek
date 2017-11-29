@@ -1,7 +1,11 @@
 NAME
-
+  lseek - sets offset of argument file descriptor to the argument offset.
 SYNOPSIS
-
+  lseek([arg1],[arg2])
+    - [arg1] represents the file decriptor
+    - [arg2] represents the integer offset
 DESCRIPTION
-
+  Changes the file offset to the argument offset.
 EXIT STATUS
+  int representing file descriptor offset or
+  -1 upon failure
