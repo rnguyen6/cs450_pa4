@@ -1,15 +1,25 @@
 # cs450_pa4
 
 Open terminal to the xv6 directory
+
 Create Makefle with "make"
+
 Run qemu (xv6) with "make qemu"
+
 To make extent/fstat/lseek:
+
   test c [filename]
+  
     - (c)reates extent file with argument
+    
   test r [filename]
+  
     - (r)eads file and prints statistics
+    
   test l [filename]
+  
     - (l)seeks file with set offsets and strings
+    
 
 If make qemu does not work,
 fs.c has to be compiled with a special option via:
