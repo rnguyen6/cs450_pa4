@@ -1,7 +1,7 @@
 Design was to fill directly accessed blocks with pointers to data blocks (pointer, length). This removes the need for indirect block pointers.
-It would create sufficiently large files sizes, but causes internal fragmentation if small extent files are made. It made for simpler code.
+It would create sufficiently large files sizes, but causes internal fragmentation if small extent files are made (which should use traditional file creations). It made for simpler code.
 
-Changes are as follows:
+Changes are as follows (see file_modifications for specific code and process):
   For extent:
     fnctl.h   - defines o type
     stat.h    - defines t type
