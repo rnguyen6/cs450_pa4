@@ -1,6 +1,6 @@
 # cs450_pa4
 
-Open terminal to the xv6 directory
+Open terminal to the xv6 directory (xv6_2 is the original copy from MIT).
 
 Create Makefle with "make"
 
